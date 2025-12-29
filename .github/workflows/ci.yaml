@@ -25,6 +25,13 @@ jobs:
       - name: Setup
         uses: eddelbuettel/github-actions/r-ci@master
 
+      - name: macOS OpenMP
+        if: ${{ matrix.os == 'macOS-latest' }}
+        run: |
+          curl -O https://mac.r-project.org/openmp/openmp-17.0.6-darwin20-Release.tar.gz
+          sudo tar fvxz openmp-17.0.6-darwin20-Release.tar.gz -C /
+          rm openmp-17.0.6-darwin20-Release.tar.gz
+
       - name: Dependencies
         run: ./run.sh install_deps
 
@@ -33,6 +40,7 @@ jobs:
         
       - name: Logs
         run: ./run.sh dump_logs
+        if: failure()
 
       - name: Install
         run: R CMD INSTALL .
