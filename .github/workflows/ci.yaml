@@ -34,6 +34,9 @@ jobs:
       - name: Logs
         run: ./run.sh dump_logs
 
+      - name: Install
+        run: R CMD INSTALL .
+
       - name: Call
         run: Rscript -e 'ompdetect::ompdetect(); ompdetect::omplimits()'
         
