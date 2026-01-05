@@ -123,228 +123,204 @@ configuration.
 Results
 -------
 
-### macOS 13.3.1, R-4.5.1 ([macOS builder][mac-builder], R-release)
+### macOS 26.2, R-devel, Apple clang 17.0.0 ([macOS builder][mac-builder], R-devel)
 
 ```
 * installing *source* package ‘ompdetect’ ...
-** this is package ‘ompdetect’ version ‘0.0-1’
+** this is package ‘ompdetect’ version ‘0.2-0’
 ** using staged installation
+Variables from the environment: PKG_CFLAGS='' PKG_LIBS=''
 Guessing OpenMP configuration for macOS
-* checking if OpenMP works with CFLAGS=$(SHLIB_OPENMP_CFLAGS) LIBS=$(SHLIB_OPENMP_CFLAGS)... no
-* checking if OpenMP works with CFLAGS=-Xclang -fopenmp LIBS=-lomp... yes
-Using CFLAGS=-Xclang -fopenmp, LIBS=-lomp for OpenMP
+* checking if OpenMP works with PKG_CFLAGS='' PKG_LIBS=''... failed to run
+* checking if OpenMP works with PKG_CFLAGS='-Xclang -fopenmp' PKG_LIBS='-lomp'... yes
+Adding PKG_CFLAGS='-Xclang -fopenmp', PKG_LIBS='-lomp'
 ** libs
-using C compiler: ‘Apple clang version 14.0.3 (clang-1403.0.22.14.1)’
-using SDK: ‘MacOSX11.3.1.sdk’
+using C compiler: ‘Apple clang version 17.0.0 (clang-1700.6.3.2)’
+using SDK: ‘MacOSX14.4.sdk’
+clang -arch arm64 -std=gnu23 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I/opt/R/arm64/include   -Xclang -fopenmp -fPIC  -falign-functions=64 -Wall -g -O2  -c test_omp.c -o test_omp.o
+clang -arch arm64 -std=gnu23 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -L/Library/Frameworks/R.framework/Resources/lib -L/opt/R/arm64/lib -o ompdetect.so test_omp.o -lomp -F/Library/Frameworks/R.framework/.. -framework R
+installing to /Volumes/PkgBuild/work/1767639495-8aa9b6af8ed5d0a9/packages/sonoma-arm64/results/4.6/ompdetect.Rcheck/00LOCK-ompdetect/00new/ompdetect/libs
+```
+
+```
+> ### ** Examples
+>
+>   ompdetect()
+OpenMP detected and working.
+>   omplimits()
+thread_limit  max_threads    num_procs
+  2147483647            8            8
+```
+
+### macOS 15.7.2, R-4.5.2, Apple clang 17.0.0 (GitHub Actions)
+
+The compiler is too new for the R-bundled OpenMP runtime, and the resulting
+shared object compiles and links successfully, but fails to load. This can
+happen in GitHub Actions without extra preparations.
+
+```
+* installing *source* package ‘ompdetect’ ...
+** this is package ‘ompdetect’ version ‘0.2-0’
+** using staged installation
+Variables from the environment: PKG_CFLAGS='' PKG_LIBS=''
+Guessing OpenMP configuration for macOS
+* checking if OpenMP works with PKG_CFLAGS='' PKG_LIBS=''... failed to run
+* checking if OpenMP works with PKG_CFLAGS='-Xclang -fopenmp' PKG_LIBS='-lomp'... failed to build
+* checking if OpenMP works with PKG_CFLAGS='$(SHLIB_OPENMP_CFLAGS)' PKG_LIBS='$(SHLIB_OPENMP_CFLAGS)'... failed to run
+* checking if OpenMP works with PKG_CFLAGS='-Xclang -fopenmp' PKG_LIBS='/usr/local/lib/libomp.dylib'... failed to build
+Couldn't guess a working OpenMP configuration.
+Do you need an OpenMP runtime and headers from <https://mac.r-project.org/openmp/>?
+Adding PKG_CFLAGS='', PKG_LIBS=''
+** libs
+using C compiler: ‘Apple clang version 17.0.0 (clang-1700.0.13.5)’
+using SDK: ‘MacOSX15.5.sdk’
+clang -arch arm64 -std=gnu2x -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2  -c test_omp.c -o test_omp.o
+clang -arch arm64 -std=gnu2x -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -L/Library/Frameworks/R.framework/Resources/lib -L/opt/R/arm64/lib -o ompdetect.so test_omp.o -F/Library/Frameworks/R.framework/.. -framework R
+installing to /Users/runner/work/_temp/Library/00LOCK-ompdetect/00new/ompdetect/libs
+```
+
+```
+$ Rscript -e 'ompdetect::ompdetect(); ompdetect::omplimits()'
+OpenMP not detected.
+thread_limit  max_threads    num_procs
+          -1           -1           -1
+```
+
+### macOS 15.7.2, R-4.5.2, Apple clang 17.0.0, compatible OpenMP runtime in `/usr/local`
+
+Same as above, but with a [compatible OpenMP runtime][mac-openmp] installed:
+
+```
+* installing *source* package ‘ompdetect’ ...
+** this is package ‘ompdetect’ version ‘0.2-0’
+** using staged installation
+Variables from the environment: PKG_CFLAGS='' PKG_LIBS=''
+Guessing OpenMP configuration for macOS
+* checking if OpenMP works with PKG_CFLAGS='' PKG_LIBS=''... failed to run
+* checking if OpenMP works with PKG_CFLAGS='-Xclang -fopenmp' PKG_LIBS='-lomp'... failed to run
+* checking if OpenMP works with PKG_CFLAGS='$(SHLIB_OPENMP_CFLAGS)' PKG_LIBS='$(SHLIB_OPENMP_CFLAGS)'... failed to run
+* checking if OpenMP works with PKG_CFLAGS='-Xclang -fopenmp' PKG_LIBS='/usr/local/lib/libomp.dylib'... yes
+Since an earlier test for -lomp failed, the resulting package is probably unsafe to mix with CRAN binaries!
+Adding PKG_CFLAGS='-Xclang -fopenmp', PKG_LIBS='/usr/local/lib/libomp.dylib'
+** libs
+using C compiler: ‘Apple clang version 17.0.0 (clang-1700.0.13.5)’
+using SDK: ‘MacOSX15.5.sdk’
+clang -arch arm64 -std=gnu2x -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I/opt/R/arm64/include   -Xclang -fopenmp -fPIC  -falign-functions=64 -Wall -g -O2  -c test_omp.c -o test_omp.o
+clang -arch arm64 -std=gnu2x -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -L/Library/Frameworks/R.framework/Resources/lib -L/opt/R/arm64/lib -o ompdetect.so test_omp.o /usr/local/lib/libomp.dylib -F/Library/Frameworks/R.framework/.. -framework R
+installing to /Users/runner/work/_temp/Library/00LOCK-ompdetect/00new/ompdetect/libs
+```
+
+```
+$ Rscript -e 'ompdetect::ompdetect(); ompdetect::omplimits()'
+OpenMP detected and working.
+thread_limit  max_threads    num_procs
+  2147483647            3            3
+```
+
+
+### macOS 15.7.2, R-4.5.2, Apple clang version 16.0.0, OpenMP headers installed
+
+Switching Xcode version to 16.2 makes it possible to use a compiler
+version compatible with the OpenMP runtime used by R-4.5.2.
+[Installing][mac-openmp] the `omp.h` header is still necessary as it's
+not bundled with R.
+
+```
+* installing *source* package ‘ompdetect’ ...
+** this is package ‘ompdetect’ version ‘0.2-0’
+** using staged installation
+Variables from the environment: PKG_CFLAGS='' PKG_LIBS=''
+Guessing OpenMP configuration for macOS
+* checking if OpenMP works with PKG_CFLAGS='' PKG_LIBS=''... failed to run
+* checking if OpenMP works with PKG_CFLAGS='-Xclang -fopenmp' PKG_LIBS='-lomp'... yes
+Adding PKG_CFLAGS='-Xclang -fopenmp', PKG_LIBS='-lomp'
+** libs
+using C compiler: ‘Apple clang version 16.0.0 (clang-1600.0.26.6)’
+using SDK: ‘MacOSX15.2.sdk’
 clang -arch arm64 -std=gnu2x -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I/opt/R/arm64/include   -Xclang -fopenmp -fPIC  -falign-functions=64 -Wall -g -O2  -c test_omp.c -o test_omp.o
 clang -arch arm64 -std=gnu2x -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -L/Library/Frameworks/R.framework/Resources/lib -L/opt/R/arm64/lib -o ompdetect.so test_omp.o -lomp -F/Library/Frameworks/R.framework/.. -framework R
-installing to /Volumes/PkgBuild/work/1753992069-04991d62b5bd56d6/packages/big-sur-arm64/results/4.5/ompdetect.Rcheck/00LOCK-ompdetect/00new/ompdetect/libs
+installing to /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library/00LOCK-ompdetect/00new/ompdetect/libs
 ```
 
 ```
-> ### ** Examples
->
->   ompdetect()
+$ Rscript -e 'ompdetect::ompdetect(); ompdetect::omplimits()'
 OpenMP detected and working.
->   omplimits()
 thread_limit  max_threads    num_procs
-  2147483647            8            8
+  2147483647            3            3
 ```
 
-### Windows, R-4.5.1 ([Win-Builder], R-release)
+### macOS 10.15.7, R-4.2.3, Apple clang 12.0.0, compatible OpenMP runtime in `/usr/local`
 
-```
-* installing *source* package 'ompdetect' ...
-** this is package 'ompdetect' version '0.0-1'
-** using staged installation
-
-   **********************************************
-   WARNING: this package has a configure script
-         It probably needs manual configuration
-   **********************************************
-
-
-** libs
-using C compiler: 'gcc.exe (GCC) 14.2.0'
-gcc  -I"D:/RCompile/recent/R-4.5.1/include" -DNDEBUG     -I"d:/rtools45/x86_64-w64-mingw32.static.posix/include"   -fopenmp   -pedantic -Wstrict-prototypes -O2 -Wall -std=gnu2x  -mfpmath=sse -msse2 -mstackrealign   -c test_omp.c -o test_omp.o
-gcc -shared -s -static-libgcc -o ompdetect.dll tmp.def test_omp.o -fopenmp -Ld:/rtools45/x86_64-w64-mingw32.static.posix/lib/x64 -Ld:/rtools45/x86_64-w64-mingw32.static.posix/lib -LD:/RCompile/recent/R-4.5.1/bin/x64 -lR
-installing to d:/RCompile/CRANguest/R-release/lib/00LOCK-ompdetect/00new/ompdetect/libs/x64
-```
-
-```
-> ### ** Examples
->
->   ompdetect()
-OpenMP detected and working.
->   omplimits()
-thread_limit  max_threads    num_procs
-           2           48           48
-```
-
-### GNU/Linux, R-4.2.2 (Debian Bookworm)
+Since the bundled OpenMP runtime only appeared in R-4.3, this
+necessitated a manual installation of the [OpenMP runtime][mac-openmp]
+(`openmp-10.0.0-darwin17-Release.tar.gz`).
 
 ```
 * installing *source* package ‘ompdetect’ ...
 ** using staged installation
-Using CFLAGS=$(SHLIB_OPENMP_CFLAGS), LIBS=$(SHLIB_OPENMP_CFLAGS) for OpenMP
+Variables from the environment: PKG_CFLAGS='' PKG_LIBS=''
+Guessing OpenMP configuration for macOS
+* checking if OpenMP works with PKG_CFLAGS='' PKG_LIBS=''... failed to run
+* checking if OpenMP works with PKG_CFLAGS='-Xclang -fopenmp' PKG_LIBS='-lomp'... yes
+Adding PKG_CFLAGS='-Xclang -fopenmp', PKG_LIBS='-lomp'
 ** libs
-make[1]: Entering directory 'REDACTED/ompdetect.Rcheck/00_pkg_src/ompdetect/src'
-gcc -I"/usr/share/R/include" -DNDEBUG     -fopenmp -fpic  -g -O2 -ffile-prefix-map=/build/r-base-wZDgjM/r-base-4.2.2.20221110=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2  -c test_omp.c -o test_omp.o
-gcc -shared -L/usr/lib/R/lib -Wl,-z,relro -o ompdetect.so test_omp.o -fopenmp -L/usr/lib/R/lib -lR
-make[1]: Leaving directory 'REDACTED/ompdetect.Rcheck/00_pkg_src/ompdetect/src'
-make[1]: Entering directory 'REDACTED/ompdetect.Rcheck/00_pkg_src/ompdetect/src'
-make[1]: Leaving directory 'REDACTED/ompdetect.Rcheck/00_pkg_src/ompdetect/src'
-installing to REDACTED/ompdetect.Rcheck/00LOCK-ompdetect/00new/ompdetect/libs
+clang -mmacosx-version-min=10.13 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I/usr/local/include  -Xclang -fopenmp -fPIC  -Wall -g -O2  -c test_omp.c -o test_omp.o
+clang -mmacosx-version-min=10.13 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/Library/Frameworks/R.framework/Resources/lib -L/usr/local/lib -o ompdetect.so test_omp.o -lomp -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
+installing to /Library/Frameworks/R.framework/Versions/4.2/Resources/library/00LOCK-ompdetect/00new/ompdetect/libs
 ```
-
 ```
-> ### ** Examples
->
->   ompdetect()
+$ Rscript -e 'ompdetect::ompdetect(); ompdetect::omplimits()'
 OpenMP detected and working.
->   omplimits()
 thread_limit  max_threads    num_procs
-  2147483647            8            8
+  2147483647            3            3
 ```
 
-### GNU/Linux, R-devel, (OpenMP disabled)
+### Flags specified in the environment
 
-This can be achieved by configuring R with `--disable-openmp`.
+Same as above, but the `configure` script takes the flags manually
+specified in the environment variables.
+
+```
+$ PKG_CFLAGS='-Xclang -fopenmp' PKG_LIBS='-lomp' R CMD INSTALL ompdetect_0.2-0.tar.gz
+* installing to library ‘/Library/Frameworks/R.framework/Versions/4.2/Resources/library’
+* installing *source* package ‘ompdetect’ ...
+** using staged installation
+Variables from the environment: PKG_CFLAGS='-Xclang -fopenmp' PKG_LIBS='-lomp'
+Guessing OpenMP configuration for macOS
+* checking if OpenMP works with PKG_CFLAGS='-Xclang -fopenmp ' PKG_LIBS='-lomp '... yes
+Adding PKG_CFLAGS='-Xclang -fopenmp ', PKG_LIBS='-lomp '
+** libs
+clang -mmacosx-version-min=10.13 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I/usr/local/include  -Xclang -fopenmp  -fPIC  -Wall -g -O2  -c test_omp.c -o test_omp.o
+clang -mmacosx-version-min=10.13 -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/Library/Frameworks/R.framework/Resources/lib -L/usr/local/lib -o ompdetect.so test_omp.o -lomp -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
+installing to /Library/Frameworks/R.framework/Versions/4.2/Resources/library/00LOCK-ompdetect/00new/ompdetect/libs
+```
+
+### macOS 10.15.7, R-4.5.2 from MacPorts, clang 17.0.6
+
+The toolchain used by MacPorts supports OpenMP natively, so R detects
+OpenMP support and provides the necessary flags (`-fopenmp`) in the
+`$(SHLIB_OPENMP_CFLAGS)` Make macro:
+
 
 ```
 * installing *source* package ‘ompdetect’ ...
-** this is package ‘ompdetect’ version ‘0.0-1’
+** this is package ‘ompdetect’ version ‘0.2-0’
 ** using staged installation
-Using CFLAGS=$(SHLIB_OPENMP_CFLAGS), LIBS=$(SHLIB_OPENMP_CFLAGS) for OpenMP
+Variables from the environment: PKG_CFLAGS='' PKG_LIBS=''
+Guessing OpenMP configuration for macOS
+* checking if OpenMP works with PKG_CFLAGS='' PKG_LIBS=''... failed to run
+* checking if OpenMP works with PKG_CFLAGS='-Xclang -fopenmp' PKG_LIBS='-lomp'... failed to build
+* checking if OpenMP works with PKG_CFLAGS='$(SHLIB_OPENMP_CFLAGS)' PKG_LIBS='$(SHLIB_OPENMP_CFLAGS)'... yes
+Adding PKG_CFLAGS='$(SHLIB_OPENMP_CFLAGS)', PKG_LIBS='$(SHLIB_OPENMP_CFLAGS)'
 ** libs
-using C compiler: ‘gcc (Debian 12.2.0-14+deb12u1) 12.2.0’
-make[1]: Entering directory 'REDACTED/ompdetect.Rcheck/00_pkg_src/ompdetect/src'
-gcc -I"REDACTED/R-devel/include" -DNDEBUG   -I/usr/local/include    -fpic  -g -O2  -c test_omp.c -o test_omp.o
-gcc -shared -L/usr/local/lib -o ompdetect.so test_omp.o
-make[1]: Leaving directory 'REDACTED/ompdetect.Rcheck/00_pkg_src/ompdetect/src'
-make[1]: Entering directory 'REDACTED/ompdetect.Rcheck/00_pkg_src/ompdetect/src'
-make[1]: Leaving directory 'REDACTED/ompdetect.Rcheck/00_pkg_src/ompdetect/src'
-installing to REDACTED/ompdetect.Rcheck/00LOCK-ompdetect/00new/ompdetect/libs
+using C compiler: ‘clang version 17.0.6’
+using SDK: ‘MacOSX10.15.6.sdk’
+/opt/local/bin/clang-mp-17 -std=gnu2x -I"/opt/local/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I/opt/local/include -isysroot/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk   -fopenmp -fPIC  -pipe -Os -isysroot/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk -arch x86_64  -c test_omp.c -o test_omp.o
+/opt/local/bin/clang-mp-17 -std=gnu2x -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/opt/local/Library/Frameworks/R.framework/Resources/lib -L/opt/local/lib -Wl,-headerpad_max_install_names -Wl,-rpath,/opt/local/lib/libgcc -Wl,-syslibroot,/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk -arch x86_64 -o ompdetect.so test_omp.o -fopenmp -F/opt/local/Library/Frameworks/R.framework/.. -framework R
+installing to /Users/user/Library/R/x86_64/4.5/library/00LOCK-ompdetect/00new/ompdetect/libs
 ```
 
-```
-> ### ** Examples
->
->   ompdetect()
-OpenMP not detected.
->   omplimits()
-thread_limit  max_threads    num_procs
-          -1           -1           -1
-```
-
-### OpenBSD 7.7, R-4.4.2
-
-OpenMP [is not supported on OpenBSD](https://j-bm.github.io/on/onp.html).
-
-```
-* installing *source* package 'ompdetect' ...
-** using staged installation
-Using CFLAGS=$(SHLIB_OPENMP_CFLAGS), LIBS=$(SHLIB_OPENMP_CFLAGS) for OpenMP
-** libs
-using C compiler: 'OpenBSD clang version 16.0.6'
-cc -I"/usr/local/lib/R/include" -DNDEBUG   -I/usr/local/include    -fpic  -O2 -pipe  -c test_omp.c -o test_omp.o
-cc -shared -fPIC -L/usr/local/lib/R/lib -L/usr/local/lib -Wl,-R/usr/local/lib/R/lib -o ompdetect.so test_omp.o -L/usr/local/lib/R/lib -lR
-installing to REDACTED/ompdetect.Rcheck/00LOCK-ompdetect/00new/ompdetect/libs
-```
-
-```
-> ### ** Examples
->
->   ompdetect()
-OpenMP not detected.
->   omplimits()
-thread_limit  max_threads    num_procs
-          -1           -1           -1
-```
-
-### FreeBSD 13.4, R-4.5.1
-
-As of this writing, `data.table`'s `configure` script fails to detect
-both OpenMP and `zlib` on FreeBSD.
-
-```
-* installing *source* package ‘ompdetect’ ...
-** this is package ‘ompdetect’ version ‘0.0-1’
-** using staged installation
-Using CFLAGS=$(SHLIB_OPENMP_CFLAGS), LIBS=$(SHLIB_OPENMP_CFLAGS) for OpenMP
-** libs
-using C compiler: ‘FreeBSD clang version 19.1.7 (https://github.com/llvm/llvm-project.git llvmorg-19.1.7-0-gcd708029e0b2)’
-cc -std=gnu23 -I"/usr/local/lib/R/include" -DNDEBUG   -DLIBICONV_PLUG -I/usr/local/include -isystem /usr/local/include   -fopenmp -fpic  -O2 -pipe  -DLIBICONV_PLUG -fstack-protector-strong -isystem /usr/local/include -fno-strict-aliasing   -c test_omp.c -o test_omp.o
-cc -std=gnu23 -shared -L/usr/local/lib/R/lib -Wl,-rpath=/usr/local/lib/gcc13 -L/usr/local/lib/gcc13 -L/usr/local/lib -fstack-protector-strong -o ompdetect.so test_omp.o -fopenmp -L/usr/local/lib/R/lib -lR
-installing to REDACTED/ompdetect.Rcheck/00LOCK-ompdetect/00new/ompdetect/libs
-```
-
-```
-> ### ** Examples
->
->   ompdetect()
-OpenMP detected and working.
->   omplimits()
-thread_limit  max_threads    num_procs
-  2147483647            1            1
-```
-
-### GNU/Linux, R-3.0.0
-
-```
-* installing *source* package ‘ompdetect’ ...
-Using CFLAGS=$(SHLIB_OPENMP_CFLAGS), LIBS=$(SHLIB_OPENMP_CFLAGS) for OpenMP
-** libs
-gcc -IREDACTED/R-3.0.0/include -DNDEBUG  -I/usr/local/include   -fopenmp -fpic  -fcommon  -c test_omp.c -o test_omp.o
-gcc -shared -L/usr/local/lib -o ompdetect.so test_omp.o -fopenmp
-installing to REDACTED/ompdetect.Rcheck/ompdetect/libs
-```
-
-```
-> ### ** Examples
->
->   ompdetect()
-OpenMP detected and working.
->   omplimits()
-thread_limit  max_threads    num_procs
-  2147483647           16           16
-```
-
-### Windows, R-3.4.4
-
-```
-* installing *source* package 'ompdetect' ...
-
-   **********************************************
-   WARNING: this package has a configure script
-         It probably needs manual configuration
-   **********************************************
-
-
-** libs
-
-*** arch - i386
-c:/Rtools/mingw_32/bin/gcc  -I"C:/PROGRA~1/R/R-34~1.4/include" -DNDEBUG       -fopenmp   -O3 -Wall  -std=gnu99 -mtune=generic -c test_omp.c -o test_omp.o
-c:/Rtools/mingw_32/bin/g++ -shared -s -static-libgcc -o ompdetect.dll tmp.def test_omp.o -fopenmp -LC:/PROGRA~1/R/R-34~1.4/bin/i386 -lR
-installing to C:/Users/User/ompdetect.Rcheck/ompdetect/libs/i386
-
-*** arch - x64
-c:/Rtools/mingw_64/bin/gcc  -I"C:/PROGRA~1/R/R-34~1.4/include" -DNDEBUG       -fopenmp   -O2 -Wall  -std=gnu99 -mtune=generic -c test_omp.c -o test_omp.o
-c:/Rtools/mingw_64/bin/g++ -shared -s -static-libgcc -o ompdetect.dll tmp.def test_omp.o -fopenmp -LC:/PROGRA~1/R/R-34~1.4/bin/x64 -lR
-installing to C:/Users/User/ompdetect.Rcheck/ompdetect/libs/x64
-```
-
-(examples are same for `i386` and `x64` cases)
-
-```
-> ### ** Examples
->
->   ompdetect()
-OpenMP detected and working.
->   omplimits()
-thread_limit  max_threads    num_procs
-  2147483647            4            4
-```
+This should work in a similar manner with a Homebrew build of R.
 
 [WRE-OpenMP]: https://cran.r-project.org/doc/manuals/R-exts.html#OpenMP-support
 [mac-openmp]: https://mac.r-project.org/openmp/
@@ -355,4 +331,3 @@ thread_limit  max_threads    num_procs
 [Kevin-Ushey-configure]: https://github.com/kevinushey/configure
 [autotools]: https://autotools.info/
 [mac-builder]: https://mac.r-project.org/macbuilder/submit.html
-[Win-Builder]: https://win-builder.r-project.org/
